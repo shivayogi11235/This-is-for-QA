@@ -1,49 +1,37 @@
+def FAILED_STAGE
+
 pipeline {
-    agent none 
-    agent none
-
-    environment {
-        BRANCH = 'main'
-        GIT_REPO = 'https://github.com/jaintpharsha/devops-june-2022.git'
-    }
-
+    agent any
     stages {
-        stage('A') {
-            agent any
-            environment {
-                BUILD_ENV = 'only_for_build_stage'
-            }
+        stage("A") {
             steps {
-                git branch: 'main', url: 'https://github.com/jaintpharsha/devops-june-2022.git'
-                git branch: $BRANCH, url: $GIT_REPO
-                sh '''
-                    #!/bin/bash 
-                    pwd 
-                    ls
-                    echo "This is a BUILD stage"
-                    sleep 5
-                    echo "$BUILD_ENV"
-                '''  
+                script {
+                    FAILED_STAGE=true
+                    echo "stage 1"
+                }
             }
         }
-
-        stage('TESTING1') {
-            agent { label 'slave2' } 
+        stage("B") {
+            when{
+                FAILED_STAGE==false 
+            }
             steps {
-                sh 'echo "This is a TESTING1 stage"'
-                sh 'sleep 5'
+                script {
+                    echo "stage 2"
+                    
+                }
             }
         }
-
-        stage('TESTING2') {
-            agent { label 'master' } 
+        stage("C") {
             steps {
-                sh '''
-                    echo "This is a TESTING2 stage"
-                    sleep 5
-                '''
-                echo "$BRANCH $GIT_REPO"
-                echo "$BUILD_ENV"
+                when{
+                    FAILED_STAGE==true
+                }
+                script {
+                    
+                    echo "stage 3"
+                }
             }
         }
     }
+}    
