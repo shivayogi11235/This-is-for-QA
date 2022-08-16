@@ -1,37 +1,38 @@
-def FAILED_STAGE
+def flag=false
+
 
 pipeline {
     agent any
+    
     stages {
-        stage("A") {
+        stage('A') {
             steps {
-                script {
-                    FAILED_STAGE=true
-                    echo "stage 1"
+		    echo "insie block A"	
+                 script { flag = true }
+                }
+            }
+       
+            
+        stage('B') {
+		when{
+		expression {flag==false}
+		}
+            	steps {
+                script{
+                   
+                        echo " executing Stage B"
+                   
                 }
             }
         }
-        stage("B") {
-            when{
-                FAILED_STAGE==false 
-            }
+        
+        stage('C') {
+		when{
+		expression {flag==true}
+		}
             steps {
-                script {
-                    echo "stage 2"
-                    
-                }
-            }
-        }
-        stage("C") {
-            steps {
-                when{
-                    FAILED_STAGE==true
-                }
-                script {
-                    
-                    echo "stage 3"
-                }
+                    echo "executing Stage C"
             }
         }
     }
-}    
+}
